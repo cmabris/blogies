@@ -9,6 +9,13 @@
 </head>
 <body class="font-sans antialiased dark:bg-black dark:text-white/50">
 <x-partials.navigation />
+
+@session('status')
+<div>
+    {{ $value }}
+</div>
+@endsession
+
 {{ $slot }}
 
 @isset($sidebar)

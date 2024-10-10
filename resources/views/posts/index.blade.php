@@ -1,4 +1,5 @@
 <x-layout meta-title="Blog" meta-description="Descripción de la página del Blog">
+
     <h1>Blog</h1>
     <a href="{{ route('posts.create') }}">Create a new Post</a>
     @foreach($posts as $post)
