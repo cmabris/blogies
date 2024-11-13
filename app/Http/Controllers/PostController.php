@@ -6,6 +6,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -29,12 +30,22 @@ class PostController extends Controller
 
     public function create()
     {
-        return view('posts.create', ['post' => new Post()]);
+        $statuses = [
+            'draft' => 'borrador',
+            'published' => 'publicado',
+            'archived' => 'archivado',
+            'pending' => 'pendiente',
+        ];
+
+        return view('posts.create', ['post' => new Post(), 'statuses' => $statuses]);
     }
 
     public function store(StorePostRequest $request)
     {
-        auth()->user()->posts()->create($request->validated());
+        $post = auth()->user()->posts()->make($request->validated());
+
+        $post->slug = Str::slug($post->title);
+        $post->save();
 
         return to_route('posts.index')
             ->with('status', 'Post created successfully');
