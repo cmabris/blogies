@@ -53,12 +53,21 @@ class PostController extends Controller
 
     public function edit(Post $post)
     {
-        return view('posts.edit', compact('post'));
+        $statuses = [
+            'draft' => 'borrador',
+            'published' => 'publicado',
+            'archived' => 'archivado',
+            'pending' => 'pendiente',
+        ];
+
+        return view('posts.edit', compact('post', 'statuses'));
     }
 
     public function update(UpdatePostRequest $request, Post $post)
     {
         $post->update($request->validated());
+        $post->slug = Str::slug($post->title);
+        $post->save();
 
         return to_route('posts.show', $post)
             ->with('status', 'Post updated successfully');
@@ -66,6 +75,10 @@ class PostController extends Controller
 
     public function destroy(Post $post)
     {
+        if ($post->status == 'draft' || $post->status == 'pending') {
+            $post->delete();
+        }
+
         $post->delete();
 
         return to_route('posts.index')
