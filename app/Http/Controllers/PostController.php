@@ -30,14 +30,19 @@ class PostController extends Controller
 
     public function create()
     {
-        $statuses = [
-            'draft' => 'borrador',
-            'published' => 'publicado',
-            'archived' => 'archivado',
-            'pending' => 'pendiente',
-        ];
+        if (auth()->user()->role->name == 'admin' ||
+            auth()->user()->role->name == 'creator') {
+            $statuses = [
+                'draft' => 'borrador',
+                'published' => 'publicado',
+                'archived' => 'archivado',
+                'pending' => 'pendiente',
+            ];
 
-        return view('posts.create', ['post' => new Post(), 'statuses' => $statuses]);
+            return view('posts.create', ['post' => new Post(), 'statuses' => $statuses]);
+        }
+
+        return $this->index();
     }
 
     public function store(StorePostRequest $request)
@@ -53,14 +58,20 @@ class PostController extends Controller
 
     public function edit(Post $post)
     {
-        $statuses = [
-            'draft' => 'borrador',
-            'published' => 'publicado',
-            'archived' => 'archivado',
-            'pending' => 'pendiente',
-        ];
+        if (auth()->user()->role->name == 'admin' ||
+            auth()->user()->role->name == 'validator' ||
+            auth()->user()->role->name == 'editor') {
+            $statuses = [
+                'draft' => 'borrador',
+                'published' => 'publicado',
+                'archived' => 'archivado',
+                'pending' => 'pendiente',
+            ];
 
-        return view('posts.edit', compact('post', 'statuses'));
+            return view('posts.edit', ['post' => $post, 'statuses' => $statuses]);
+        }
+
+        return $this->index();
     }
 
     public function update(UpdatePostRequest $request, Post $post)
@@ -75,14 +86,22 @@ class PostController extends Controller
 
     public function destroy(Post $post)
     {
-        if ($post->status == 'draft' || $post->status == 'pending') {
+
+
+        if (auth()->user()->role->name == 'admin' ||
+            auth()->user()->role->name == 'eraser') {
+
+            if ($post->status == 'draft' || $post->status == 'pending') {
+                $post->delete();
+            }
+
             $post->delete();
+
+            return to_route('posts.index')
+                ->with('status', 'Post deleted successfully');
         }
 
-        $post->delete();
-
-        return to_route('posts.index')
-            ->with('status', 'Post deleted successfully');
+        return $this->index();
     }
 
     public function userPosts()
