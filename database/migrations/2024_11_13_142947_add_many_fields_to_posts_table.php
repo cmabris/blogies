@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->string('summary', 50)->nullable();
-            $table->string('slug')->unique();
-            $table->string('status')->default('draft');
-            $table->integer('reading_time')->default(1);
+            $table->string('summary', 50)->nullable()->after('body');
+            $table->string('slug')->unique()->after('title');
+            $table->string('status')->default('draft')->after('published_at');
+            $table->integer('reading_time')->default(1)->after('status');
         });
     }
 
